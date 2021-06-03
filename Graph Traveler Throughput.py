@@ -77,7 +77,6 @@ def generate_fig_for_traveler_throughput():
     return fig
 
 
-# fig.show()
 if len(sys.argv) >  1:
     figure = generate_fig_for_traveler_throughput()
     if sys.argv[1] == "Graph":
