@@ -81,7 +81,7 @@ if len(sys.argv) >  1:
     figure = generate_fig_for_traveler_throughput()
     if sys.argv[1] == "Graph":
         figure.show()
-    elif sys.argv[1] == "Plot_Online":
+    elif sys.argv[1] == "Publish_Online":
         py.plot(figure,filename = 'Graph-Traveler-Throughput')
 
 print("Done...")
