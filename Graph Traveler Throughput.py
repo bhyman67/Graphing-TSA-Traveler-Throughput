@@ -80,22 +80,10 @@ def generate_fig_for_traveler_throughput_with_SMA():
         ]
     )
 
-    # # Daily Throughput Counts (make a for loop out of this) include what the headers are in the comments... 
-    # for col in df.columns:
-    #     print(col)
-    #     trace = go.Scatter(
-    #         name = col.split()[0],
-    #         visible = True,
-    #         x = '',
-    #         y = ''
-    #     )
-    #     fig.add_trace(trace)
-
+    # Raw time series
     fig.add_trace(go.Scatter(name = "2021", visible = True, x = df.index, y = df["2021 Traveler Throughput"])) 
     fig.add_trace(go.Scatter(name = "2020", visible = True, x = df.index, y = df["2020 Traveler Throughput"]))
     fig.add_trace(go.Scatter(name = "2019", visible = True, x = df.index, y = df["2019 Traveler Throughput"]))
-
-    # make a for loop out of the next two??? Nessted loop here
 
     # SMA 3
     fig.add_trace(go.Scatter(name = "2021", visible = False, x = df.index, y = df["2021 Traveler Throughput"].rolling(3, min_periods=3).mean()))
