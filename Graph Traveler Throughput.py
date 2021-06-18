@@ -80,7 +80,7 @@ def generate_fig_for_traveler_throughput_with_SMA():
         ]
     )
 
-    # Raw time series
+    # Raw time series (set this to be visible from the start)
     fig.add_trace(go.Scatter(name = "2021", visible = True, x = df.index, y = df["2021 Traveler Throughput"])) 
     fig.add_trace(go.Scatter(name = "2020", visible = True, x = df.index, y = df["2020 Traveler Throughput"]))
     fig.add_trace(go.Scatter(name = "2019", visible = True, x = df.index, y = df["2019 Traveler Throughput"]))
