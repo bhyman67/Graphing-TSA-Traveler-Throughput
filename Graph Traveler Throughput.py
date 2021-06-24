@@ -49,7 +49,7 @@ def generate_fig_for_traveler_throughput_with_SMA():
         updatemenus = [
             dict(
                 active = 0,
-                buttons = list([ # are we sure that we need the square brackets...? 
+                buttons = list([ 
                     # Button 1
                     dict(
                         label = "Daily Throughput Counts",
