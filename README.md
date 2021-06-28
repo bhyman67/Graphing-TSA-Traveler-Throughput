@@ -9,3 +9,5 @@ Run the one of the following two commands to post the visualization online throu
 
 - ``` python "Graph Traveler Throughput.py" Publish_Graph ```
 - ``` python "Graph Traveler Throughput.py" Publish_Graph_With_SMA_Online ```
+
+But of course, the chart studio API key for your account needs to be generated and stored in the correct location...  
