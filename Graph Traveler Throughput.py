@@ -154,12 +154,12 @@ if len(sys.argv) >  1:
         if sys.argv[1]=="Show_Graph_With_SMA":
             figure.show()
         elif sys.argv[1] == "Publish_Graph_With_SMA_Online":
-            py.plot(figure,filename = 'Graph-Traveler-Throughput_With_SMA')
+            py.plot(figure,filename = 'Graph-Traveler-Throughput_With_SMA', auto_open = False)
     else:
         figure = generate_fig_for_traveler_throughput()
         if sys.argv[1]=="Show_Graph":
             figure.show()
         elif sys.argv[1] == "Publish_Graph":
-            py.plot(figure,filename = 'Graph-Traveler-Throughput')
+            py.plot(figure,filename = 'Graph-Traveler-Throughput', auto_open = False)
 
 print("Done...")
