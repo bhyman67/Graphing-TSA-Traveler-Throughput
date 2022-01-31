@@ -5,7 +5,7 @@ In order to generate one of the graphs locally, run one of the the following two
 - ``` python "Graph_Traveler_Throughput.py" Show_Graph ```
 - ``` python "Graph_Traveler_Throughput.py" Show_Graph_With_SMA ```
 
-Run one of the the following two commands to publish the visualization to [Datapane](https://plotly.com/chart-studio/):
+Run one of the the following two commands to publish the visualization to [Datapane](https://datapane.com/):
 
 - ``` python "Graph_Traveler_Throughput.py" Publish_Graph ```
 - ``` python "Graph_Traveler_Throughput.py" Publish_Graph_With_SMA_Online ```
