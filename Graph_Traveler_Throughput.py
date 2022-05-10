@@ -98,7 +98,7 @@ def generate_fig_for_traveler_throughput_with_SMA():
     # Update the layout of the fig
     button_list = list(button_list)
     fig.update_layout(
-        title = {"text":"TSA Checkpoint Numbers - Traveler Thoughput (2019/2020/2021)"},
+        title = {"text":graph_title},
         hovermode="x",
         xaxis=dict(tickformat="%b %d"),
         updatemenus = [
@@ -155,7 +155,7 @@ def generate_fig_for_traveler_throughput():
         x="Date",
         y="Traveler Throughput",
         color = "Year",
-        title = 'TSA Checkpoint Numbers - Traveler Thoughput (2019/2020/2021/2022)'
+        title = graph_title
     )
     fig.update_layout(xaxis=dict(tickformat="%b %d"),hovermode="x")
 
@@ -164,6 +164,8 @@ def generate_fig_for_traveler_throughput():
 if len(sys.argv) >  1:
     
     #dp.login(token=os.environ["DATAPANE_API_KEY"])
+    
+    graph_title = 'TSA Checkpoint Numbers - Traveler Thoughput (2019/2020/2021/2022)'
     
     if "SMA" in sys.argv[1]:
         
