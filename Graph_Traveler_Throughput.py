@@ -181,7 +181,7 @@ if len(sys.argv) >  1:
             
             # py.plot(figure,filename = 'Graph-Traveler-Throughput_With_SMA', auto_open = False)
             datapane_report = dp.Report(dp.Plot(figure))
-            datapane_report.upload(name='Traveler Throughput with SMA')
+            datapane_report.upload(name='Traveler Throughput with SMA', publicly_visible = True)
             
     else:
         
@@ -195,7 +195,7 @@ if len(sys.argv) >  1:
             
             # py.plot(figure,filename = 'Graph-Traveler-Throughput', auto_open = False)
             datapane_report = dp.Report(dp.Plot(figure))
-            datapane_report.upload(name='Traveler Throughput')
+            datapane_report.upload(name='Traveler Throughput', publicly_visible = True)
             
 else:
     
