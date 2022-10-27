@@ -1,4 +1,6 @@
-# Graphing TSA Traveler Throughput
+<h1>
+    <p align="center">Graphing TSA Traveler Throughput</p>
+</h1>
 
 In order to generate one of the graphs locally, run one of the the following two commands in the directory where "Graph_Traveler_Throughput.py" lives:
 
