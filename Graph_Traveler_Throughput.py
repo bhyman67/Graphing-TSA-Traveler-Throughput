@@ -5,8 +5,9 @@ import requests
 import pandas as pd
 import datapane as dp
 import plotly.express as px
-import plotly.graph_objects as go
 from bs4 import BeautifulSoup
+import plotly.graph_objects as go
+from datetime import date, datetime
 # import chart_studio.plotly as py
 
 def get_traveler_throughput_data(): 
@@ -15,23 +16,23 @@ def get_traveler_throughput_data():
     # Data retrieval, formating, and sorting
     # +++++++++++++++++++++++++++++++++++++++
 
-    # Web request for the html
+    # Web request for the html (use BeautifulSoup to parse it)
     resp = requests.get("https://www.tsa.gov/coronavirus/passenger-throughput")
     soup = BeautifulSoup(resp.text, 'html.parser')
 
-    # Grab the data table from the html and
+    # Grab the data table web element from the html and
     # place it into a pandas dataframe
     tbl = str(soup.find("table"))
     df = pd.read_html(tbl)[0]
-
-    # Loop through all of the dates and turn 2020s into 2021s
-    for index, row in df.iterrows():
-        if row["Date"][-4:] == "2021":
-            df.iloc[index,0] = df.iloc[index,0].replace("2021","2022")
     
-    # ...
+    # Set the date column as an index 
     df["Date"] = pd.to_datetime(df["Date"])
-    df.set_index("Date",inplace=True) # does it make sense to do this??? 
+    
+    # Get the current year
+    begining_of_current_year = str(date.today().year)+"-01-01"
+    df.loc[df.Date >= begining_of_current_year,"Date"] = df.loc[df.Date >= begining_of_current_year,"Date"] - pd.DateOffset(years=1)
+    
+    df.set_index("Date",inplace=True)  
     df.sort_index(ascending=True,inplace=True)
 
     return df    
