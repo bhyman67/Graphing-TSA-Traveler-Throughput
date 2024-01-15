@@ -31,10 +31,6 @@ def get_traveler_throughput_data():
 
 def generate_fig_for_traveler_throughput_with_SMA():
 
-    # ++++++++++++++++++++
-    # Plotly Visualization
-    # ++++++++++++++++++++
-
     # Get traveler throughput data by scraping the web
     df = get_traveler_throughput_data()
     
@@ -59,12 +55,10 @@ def generate_fig_for_traveler_throughput_with_SMA():
             
             # Calculate y values (which will be the SMA unless we're just showing daily throughput)
             if sma_periods[sma_period] == 0:
-                y_vals = df[year]
+                sma_or_raw_throughputs = df[year] # raw throughputs for current year in the loop
             else:
-                y_vals = df[year].rolling( 
-                    sma_periods[sma_period], 
-                    min_periods = sma_periods[sma_period] 
-                ).mean()
+                # SMA throughputs for current year in the loop
+                sma_or_raw_throughputs = df[year].rolling( sma_periods[sma_period] ).mean()
             
             # Add trace to the graph object figure
             fig.add_trace(
@@ -72,7 +66,7 @@ def generate_fig_for_traveler_throughput_with_SMA():
                     name = year,
                     visible = visibility,
                     x = df.index,
-                    y = y_vals
+                    y = sma_or_raw_throughputs
                 )
             )
             
@@ -81,8 +75,8 @@ def generate_fig_for_traveler_throughput_with_SMA():
         visibility = False
 
         # Add a button to the button list
-        boolean_list = list(np.repeat(False, 12))
-        boolean_list[i*4:(i*4)+4] = list(np.repeat(True, 4))
+        boolean_list = list(np.repeat(False, 6))
+        boolean_list[i*2:(i*2)+2] = list(np.repeat(True, 2))
         button_list.append(
             dict(
                 label = sma_period,
