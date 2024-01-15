@@ -1,37 +1,29 @@
-import os
-import sys
-import numpy as np
+import os, sys
 import requests
+import numpy as np
 import pandas as pd
-import datapane as dp
 import plotly.express as px
 from bs4 import BeautifulSoup
+import chart_studio.plotly as py
 import plotly.graph_objects as go
 from datetime import date, datetime
-# import chart_studio.plotly as py
 
 def get_traveler_throughput_data(): 
 
-    # +++++++++++++++++++++++++++++++++++++++
-    # Data retrieval, formating, and sorting
-    # +++++++++++++++++++++++++++++++++++++++
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Gets traveler throughput data from the TSA's website
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     # Web request for the html (use BeautifulSoup to parse it)
-    resp = requests.get("https://www.tsa.gov/coronavirus/passenger-throughput")
+    resp = requests.get("https://www.tsa.gov/travel/passenger-volumes")
     soup = BeautifulSoup(resp.text, 'html.parser')
 
-    # Grab the data table web element from the html and
-    # place it into a pandas dataframe
+    # Grab the data from the HTML table web element
     tbl = str(soup.find("table"))
     df = pd.read_html(tbl)[0]
     
-    # Set the date column as an index 
+    # Set the date col as an index 
     df["Date"] = pd.to_datetime(df["Date"])
-    
-    # Get the current year
-    begining_of_current_year = str(date.today().year)+"-01-01"
-    df.loc[df.Date >= begining_of_current_year,"Date"] = df.loc[df.Date >= begining_of_current_year,"Date"] - pd.DateOffset(years=1)
-    
     df.set_index("Date",inplace=True)  
     df.sort_index(ascending=True,inplace=True)
 
@@ -50,28 +42,31 @@ def generate_fig_for_traveler_throughput_with_SMA():
     fig = go.Figure()
     
     # Initialize some vars
-    year_list = list(df.columns)
-    sma_list = {
-        "Daily Throughput Counts":0,
-        "3 Day Moving Average (SMA)":3,
-        "7 Day Moving Average (SMA)":7
-    } 
     button_list = []
     trace_list = []
     visibility = True
+    years = list(df.columns) 
+    sma_periods = {
+        "Daily Throughput Counts":0, # 0 day SMA...
+        "3 Day SMA":3,
+        "7 Day SMA":7
+    }
     
-    # Create a trace for each year for each SMA (0 day AKA raw count, 3 day, and 7 day)
-    for i, sma in enumerate(sma_list):
+    # Create a graph object trace for each year and SMA period 
+    for i, sma_period in enumerate(sma_periods):
             
-        for year in year_list:
+        for year in years:
             
-            # Calculate y values
-            if sma_list[sma] == 0:
+            # Calculate y values (which will be the SMA unless we're just showing daily throughput)
+            if sma_periods[sma_period] == 0:
                 y_vals = df[year]
             else:
-                y_vals = df[year].rolling(sma_list[sma], min_periods = sma_list[sma]).mean()
+                y_vals = df[year].rolling( 
+                    sma_periods[sma_period], 
+                    min_periods = sma_periods[sma_period] 
+                ).mean()
             
-            # Add trace to the figure
+            # Add trace to the graph object figure
             fig.add_trace(
                 go.Scatter(
                     name = year,
@@ -90,7 +85,7 @@ def generate_fig_for_traveler_throughput_with_SMA():
         boolean_list[i*4:(i*4)+4] = list(np.repeat(True, 4))
         button_list.append(
             dict(
-                label = sma,
+                label = sma_period,
                 method = "update",
                 args = [{"visible":boolean_list}]
             )
@@ -99,7 +94,7 @@ def generate_fig_for_traveler_throughput_with_SMA():
     # Update the layout of the fig
     button_list = list(button_list)
     fig.update_layout(
-        title = {"text":graph_title},
+        title = {"text":'TSA Simple Moving Average Throughputs'},
         hovermode="x",
         xaxis=dict(tickformat="%b %d"),
         updatemenus = [
@@ -128,18 +123,18 @@ def generate_fig_for_traveler_throughput():
 
     traveler_throughput = get_traveler_throughput_data()
 
-    # Per col in the traveler throughput data, I need to create a new df.
+    # For each col in the traveler throughput data (for each year), I need to create a new df.
     df_list = []
-    for col_name in traveler_throughput.columns:
+    for crnt_col in traveler_throughput.columns:
         
-        new_df = traveler_throughput[col_name]
+        new_df = traveler_throughput[crnt_col]
         new_df.dropna(inplace = True)
         new_df = new_df.to_frame()
-        new_df = new_df.rename(columns = {col_name:"Traveler Throughput"})
+        new_df = new_df.rename(columns = {crnt_col:"Traveler Throughput"})
         new_df.reset_index(inplace = True)
         new_df["Date"] = new_df["Date"].astype(str)
         
-        new_df["Year"] = col_name
+        new_df["Year"] = crnt_col
         
         df_list.append(new_df)
 
@@ -156,7 +151,7 @@ def generate_fig_for_traveler_throughput():
         x="Date",
         y="Traveler Throughput",
         color = "Year",
-        title = graph_title
+        title = 'TSA Daily Throughputs'
     )
     fig.update_layout(xaxis=dict(tickformat="%b %d"),hovermode="x")
 
@@ -164,12 +159,10 @@ def generate_fig_for_traveler_throughput():
 
 if len(sys.argv) >  1:
     
-    #dp.login(token=os.environ["DATAPANE_API_KEY"])
-    
-    graph_title = 'TSA Checkpoint Numbers - Traveler Thoughput (2019/2020/2021/2022)'
-    
     if "SMA" in sys.argv[1]:
         
+        # Plotly graph with SMA
+
         figure = generate_fig_for_traveler_throughput_with_SMA()
         
         if sys.argv[1]=="Show_Graph_With_SMA":
@@ -180,12 +173,12 @@ if len(sys.argv) >  1:
             
         elif sys.argv[1] == "Publish_Graph_With_SMA_Online":
             
-            # py.plot(figure,filename = 'Graph-Traveler-Throughput_With_SMA', auto_open = False)
-            datapane_report = dp.Report(dp.Plot(figure))
-            datapane_report.upload(name='Traveler Throughput with SMA', publicly_visible = True)
+            py.plot(figure,filename = 'Graph-Traveler-Throughput_With_SMA', auto_open = False)
             
     else:
         
+        # Plotly graph w/out SMA
+
         figure = generate_fig_for_traveler_throughput()
         
         if sys.argv[1]=="Show_Graph":
@@ -194,9 +187,7 @@ if len(sys.argv) >  1:
             
         elif sys.argv[1] == "Publish_Graph":
             
-            # py.plot(figure,filename = 'Graph-Traveler-Throughput', auto_open = False)
-            datapane_report = dp.Report(dp.Plot(figure))
-            datapane_report.upload(name='Traveler Throughput', publicly_visible = True)
+            py.plot(figure,filename = 'Graph-Traveler-Throughput', auto_open = False)
             
 else:
     
