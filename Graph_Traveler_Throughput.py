@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 from bs4 import BeautifulSoup
-import chart_studio.plotly as py
+# import chart_studio.plotly as py
 import plotly.graph_objects as go
 from datetime import date, datetime
 
@@ -165,9 +165,9 @@ if len(sys.argv) >  1:
             figure.show()
             print("Fig should have been shown")
             
-        elif sys.argv[1] == "Publish_Graph_With_SMA_Online":
+        # elif sys.argv[1] == "Publish_Graph_With_SMA_Online":
             
-            py.plot(figure,filename = 'Graph-Traveler-Throughput_With_SMA', auto_open = False)
+        #     py.plot(figure,filename = 'Graph-Traveler-Throughput_With_SMA', auto_open = False)
             
     else:
         
@@ -179,9 +179,9 @@ if len(sys.argv) >  1:
             
             figure.show()
             
-        elif sys.argv[1] == "Publish_Graph":
+        # elif sys.argv[1] == "Publish_Graph":
             
-            py.plot(figure,filename = 'Graph-Traveler-Throughput', auto_open = False)
+        #     py.plot(figure,filename = 'Graph-Traveler-Throughput', auto_open = False)
             
 else:
     
