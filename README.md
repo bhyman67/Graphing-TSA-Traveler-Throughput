@@ -2,16 +2,20 @@
     <p align="center">Graphing TSA Traveler Throughput</p>
 </h1>
 
-In order to generate one of the graphs locally, run one of the the following two commands in the directory where "Graph_Traveler_Throughput.py" lives:
+## Project Summary
 
-- ``` python "Graph_Traveler_Throughput.py" Show_Graph ```
-- ``` python "Graph_Traveler_Throughput.py" Show_Graph_With_SMA ```
+This project visualizes TSA traveler throughput data to analyze trends in airline travel. The Python script fetches and processes TSA checkpoint data, creating interactive visualizations using Plotly to help answer the question: "Is airline travel bouncing back?"
 
-Run one of the the following two commands to publish the visualization to [Plotly Chart Studio](https://chart-studio.plotly.com/feed/#/) (API keys needed):
+### Hosting History
 
-- ``` python "Graph_Traveler_Throughput.py" Publish_Graph ```
-- ``` python "Graph_Traveler_Throughput.py" Publish_Graph_With_SMA_Online ```
+This project has evolved through several hosting platforms:
+- **Datapane** - Initial deployment
+- **Chart Studio** - Second iteration
+- **Plotly Cloud** - Current hosting solution
 
-But of course, the chart studio API key for your account needs to be generated and stored in the correct location...  
+## Usage
+
+- **Run the Dash app**: Execute `python "TSA_Traveler_Throughput.py"` to launch the interactive Dash application
+- **View visualizations**: Run the `Show_Graph.bat` batch file to generate and display the visualizations
 
 <p align="right">Click <a href="https://github.com/bhyman67/Graphing-TSA-Traveler-Throughput">here</a> to view this project's repository<p>

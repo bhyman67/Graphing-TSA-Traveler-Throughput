@@ -7,6 +7,12 @@ from bs4 import BeautifulSoup
 # import chart_studio.plotly as py
 import plotly.graph_objects as go
 from datetime import date, datetime
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output
+
+# Note, used to be able to push this to plotly chart studio, but it has shut down.
+# and before chart studio, I used datapane which also has shut down.
 
 def get_traveler_throughput_data(): 
 
@@ -18,14 +24,38 @@ def get_traveler_throughput_data():
     resp = requests.get("https://www.tsa.gov/travel/passenger-volumes")
     soup = BeautifulSoup(resp.text, 'html.parser')
 
-    # Grab the data from the HTML table web element
-    tbl = str(soup.find("table"))
-    df = pd.read_html(tbl)[0]
+    # Find the table and manually parse it
+    table = soup.find("table")
+    
+    # Extract headers from the table
+    headers = []
+    header_row = table.find("thead").find("tr") if table.find("thead") else table.find("tr")
+    for th in header_row.find_all(["th", "td"]):
+        headers.append(th.text.strip())
+    
+    # Extract data rows
+    rows_data = []
+    tbody = table.find("tbody") if table.find("tbody") else table
+    for row in tbody.find_all("tr"):
+        cells = row.find_all(["td", "th"])
+        if len(cells) > 0 and cells[0].text.strip():  # Skip empty rows
+            row_data = [cell.text.strip() for cell in cells]
+            # Only add if it's not the header row
+            if row_data[0] not in headers:
+                rows_data.append(row_data)
+    
+    # Create DataFrame from parsed data
+    df = pd.DataFrame(rows_data, columns=headers)
     
     # Set the date col as an index 
     df["Date"] = pd.to_datetime(df["Date"])
-    df.set_index("Date",inplace=True)  
-    df.sort_index(ascending=True,inplace=True)
+    df.set_index("Date", inplace=True)
+    
+    # Convert numeric columns to proper numeric types
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col].str.replace(',', ''), errors='coerce')
+    
+    df.sort_index(ascending=True, inplace=True)
 
     return df    
 
@@ -151,40 +181,87 @@ def generate_fig_for_traveler_throughput():
 
     return fig
 
-if len(sys.argv) >  1:
-    
-    if "SMA" in sys.argv[1]:
-        
-        # Plotly graph with SMA
+# Initialize the Dash app
+app = dash.Dash(__name__)
 
-        figure = generate_fig_for_traveler_throughput_with_SMA()
-        
-        if sys.argv[1]=="Show_Graph_With_SMA":
-            
-            print("Show the fig")
-            figure.show()
-            print("Fig should have been shown")
-            
-        # elif sys.argv[1] == "Publish_Graph_With_SMA_Online":
-            
-        #     py.plot(figure,filename = 'Graph-Traveler-Throughput_With_SMA', auto_open = False)
-            
+# Define the app layout
+app.layout = html.Div([
+    html.H1("TSA Traveler Throughput Dashboard", 
+            style={'textAlign': 'center', 'color': '#2c3e50', 'marginBottom': 30}),
+    
+    html.Div([
+        html.Label("Select Visualization Type:", 
+                   style={'fontSize': 18, 'fontWeight': 'bold', 'marginBottom': 10}),
+        dcc.RadioItems(
+            id='graph-type',
+            options=[
+                {'label': ' Daily Throughput', 'value': 'daily'},
+                {'label': ' Simple Moving Average', 'value': 'sma'}
+            ],
+            value='daily',
+            labelStyle={'display': 'block', 'marginBottom': 10},
+            style={'marginBottom': 20}
+        )
+    ], style={'width': '30%', 'margin': '0 auto', 'padding': 20}),
+    
+    dcc.Loading(
+        id="loading",
+        type="default",
+        children=[
+            dcc.Graph(id='throughput-graph')
+        ]
+    ),
+    
+    html.Div([
+        html.P("Data source: TSA (Transportation Security Administration)", 
+               style={'textAlign': 'center', 'color': '#7f8c8d', 'marginTop': 20})
+    ])
+], style={'fontFamily': 'Arial, sans-serif', 'padding': 20})
+
+# Define callback to update graph
+@app.callback(
+    Output('throughput-graph', 'figure'),
+    Input('graph-type', 'value')
+)
+def update_graph(graph_type):
+    if graph_type == 'sma':
+        return generate_fig_for_traveler_throughput_with_SMA()
     else:
-        
-        # Plotly graph w/out SMA
+        return generate_fig_for_traveler_throughput()
 
-        figure = generate_fig_for_traveler_throughput()
+# Run the app or handle command line arguments
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
         
-        if sys.argv[1]=="Show_Graph":
+        if "SMA" in sys.argv[1]:
             
-            figure.show()
+            # Plotly graph with SMA
+            figure = generate_fig_for_traveler_throughput_with_SMA()
             
-        # elif sys.argv[1] == "Publish_Graph":
+            if sys.argv[1]=="Show_Graph_With_SMA":
+                
+                print("Show the fig")
+                figure.show()
+                print("Fig should have been shown")
+                
+            # elif sys.argv[1] == "Publish_Graph_With_SMA_Online":
+                
+            #     py.plot(figure,filename = 'Graph-Traveler-Throughput_With_SMA', auto_open = False)
+                
+        else:
             
-        #     py.plot(figure,filename = 'Graph-Traveler-Throughput', auto_open = False)
+            # Plotly graph w/out SMA
+            figure = generate_fig_for_traveler_throughput()
             
-else:
-    
-    my_df = get_traveler_throughput_data()
-
-print("Done...")
+            if sys.argv[1]=="Show_Graph":
+                
+                figure.show()
+                
+            # elif sys.argv[1] == "Publish_Graph":
+                
+            #     py.plot(figure,filename = 'Graph-Traveler-Throughput', auto_open = False)
+                
+        print("Done...")
+    else:
+        # No command line args - run the Dash web app
+        app.run(debug=True)

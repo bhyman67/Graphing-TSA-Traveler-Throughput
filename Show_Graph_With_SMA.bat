@@ -1,1 +1,0 @@
-python "repo\Graph_Traveler_Throughput.py" Show_Graph_With_SMA
